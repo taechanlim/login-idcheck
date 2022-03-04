@@ -13,6 +13,7 @@ nunjucks.configure('views',{
 
 app.use(express.urlencoded({extended:true,})) // http body영역을 해석해주는아이 Content-type : application/x-www-form-urlencoded
 app.use(auth)
+app.use(express.json()) //Content-type : application/json
 
 app.get('/',(req,res)=>{
     res.send('hello server111')
@@ -29,7 +30,6 @@ app.get('/login',(req,res)=>{
 app.post('/login',(req,res)=>{
     const { userid ,userpw } = req.body
     const [ item ] = user.filter( v => v.userid == userid && v.userpw == userpw )
-
     try {
         if(item === undefined) throw new Error('item undefined')
 
@@ -50,28 +50,43 @@ app.post('/login',(req,res)=>{
         const token = createToken(payload)
         // JWT 토큰이 잘 만들어졌는지. 확인하는 작업을 할거에요. 표준에 맞춰어져있는지. 
         // https://jwt.io 
-        console.log(token)
+        // console.log(token)
         // 2. 생성한 토큰을 쿠키로 생성해서 보내주어야 합니다.
         res.setHeader('Set-cookie',`AccessToken=${token}; HttpOnly; Secure; Path=/;`)
         res.redirect('/')
     } catch (e) {
-        console.log(e)
+        // console.log(e)
         res.status(500).send('실패')
     }
 
-    console.log(item)
+    // console.log(item)
     // request message  HTTP
     // response message HTTP  200 OK http/1.1
 })
 
 app.get('/admin',(req,res)=>{
     try{
-        if( req.user === undefined ) throw new Error('로그인하고 와라 슈뱌')
-        console.log(req.user)
+        if( req.user === undefined ) throw new Error('로그인하고 와라')
+        // console.log(req.user)
         res.send('하하하하하하하하하하하하하하하하하하')
     } catch( e ) {
         res.send('로그인 하고와라~')
     }
+})
+
+//router 2개 ,화면1개
+app.get('/join',(req,res)=>{
+    res.render('join')
+})
+app.post('/idcheck',(req,res)=>{
+    const {userid} = req.body
+    const [ item ] = user.filter( v => v.userid == userid)
+    let result = 1
+    if(item !== undefined) result = 2
+    const response = {
+        result //가입가능은1, 불가능은2
+    }
+    res.send(JSON.stringify(response))
 })
 
 app.listen(3000,()=>{

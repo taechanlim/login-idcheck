@@ -7,7 +7,7 @@ function createToken(state){
         tpy:"JWT",
         alg:"HS256"
     }
-
+ 
     const payload = {
         ...state
     }
